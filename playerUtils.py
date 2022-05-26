@@ -1,5 +1,6 @@
 import math
 import random
+import sys
 import Goban
 
 def evaluate_board_score(b: Goban.Board) -> float:
@@ -94,59 +95,47 @@ def random_game(b: Goban.Board) -> float:
 
     return win
 
-def monte_carlo(b: Goban.Board, nb_try: int, maximizing: bool):
+def monte_carlo(b: Goban.Board, nb_try: int):
     """
-    Returns best move and its score on average according to random games.
+    Returns board score on average according to random games.
     """
 
-    moves = b.weak_legal_moves()
-    best_score = -math.inf if maximizing else math.inf
-    best_move = None
+    board_score = 0
 
-    for move in moves:
-        valid = b.push(move)
-
-        if not valid:
-            b.pop()
-            continue
+    for _ in range(nb_try):
+        board_score += random_game(b)
         
-        move_score = 0
+    board_score /= nb_try
 
-        for _ in range(nb_try):
-            move_score += random_game(b)
-        
-        b.pop()
-        move_score /= nb_try
+    return board_score
 
-        if (move_score > best_score and maximizing) or (move_score < best_score and not maximizing):
-            best_score = move_score
-            best_move = move
-
-    return best_move, move_score
-
-def alpha_beta_monte_carlo(b: Goban.Board, max_depth=0, alpha=-math.inf, beta=math.inf, maximizing=True, depth=0, monte_carlo_depth=4, nb_try=100) -> float:
+def alpha_beta_monte_carlo(b: Goban.Board, max_depth=0, alpha=-math.inf, beta=math.inf, maximizing=True, depth=0, p=0.2, nb_try=100) -> float:
     """Alpha-Beta with Monte Carlo
 
     Returns:
         float: The score of the current board.
     """
 
-    if depth >= monte_carlo_depth:
-        _, score = monte_carlo(b, nb_try, maximizing)
-        return score
     if depth >= max_depth or b.is_game_over():
-        return evaluate_board_score(b)
+        r = random.Random().uniform(0.0, 1.0) 
+        if r <= p:
+            return monte_carlo(b, nb_try)
+        else:
+            return evaluate_board_score(b)
+
+    moves = b.weak_legal_moves()
+    random.shuffle(moves)
 
     if maximizing:
         max_evaluation = -math.inf
 
-        for move in  b.weak_legal_moves():
+        for move in moves:
             valid = b.push(move)
             if not valid:
                 b.pop()
                 continue
 
-            evaluation = alpha_beta_monte_carlo(b, max_depth, alpha, beta, False, depth + 1)
+            evaluation = alpha_beta_monte_carlo(b, max_depth, alpha, beta, False, depth + 1, p, nb_try)
             b.pop()
 
             max_evaluation = max(max_evaluation, evaluation)
@@ -159,13 +148,13 @@ def alpha_beta_monte_carlo(b: Goban.Board, max_depth=0, alpha=-math.inf, beta=ma
     else:
         min_evaluation = math.inf
 
-        for move in b.weak_legal_moves():
+        for move in moves:
             valid = b.push(move)
             if not valid:
                 b.pop()
                 continue
 
-            evaluation = alpha_beta(b, max_depth, alpha, beta, True, depth + 1)
+            evaluation = alpha_beta_monte_carlo(b, max_depth, alpha, beta, True, depth + 1, p, nb_try)
             b.pop()
 
             min_evaluation = min(min_evaluation, evaluation)

@@ -53,44 +53,6 @@ class myPlayer(PlayerInterface):
         else:
             print("Alpha Beta lost :(!!")
 
-    def find_best_move(self) -> int:
-        """Find the best move.
-
-        Returns:
-            int: The best evaluated move
-        """
-
-        is_black = self._mycolor == Goban.Board._BLACK
-        best_score = -math.inf if is_black else math.inf 
-        best_move = None
-        legal_moves = self._board.weak_legal_moves()
-        max_depth = 1
-
-        random.shuffle(legal_moves)
-
-        if len(legal_moves) < 30:
-            max_depth = 2
-        if len(legal_moves) < 20:
-            max_depth = 3
-        if len(legal_moves) < 5:
-            max_depth = 4
-
-        for move in legal_moves:
-            valid = self._board.push(move)
-
-            if not valid:
-                self._board.pop()
-                continue
-
-            move_score = alpha_beta(self._board, max_depth=max_depth, maximizing=is_black)
-            self._board.pop()
-
-            if (move_score > best_score and is_black) or (move_score < best_score and not is_black):
-                best_score = move_score
-                best_move = move
-
-        return best_move
-
     def find_best_move_iterative(self, total_time=5.0) -> int:
         """Find the best move in a maximum of `total_time` seconds using iterative deepening with alpha-beta.
 
@@ -118,7 +80,7 @@ class myPlayer(PlayerInterface):
                     self._board.pop()
                     continue
 
-                move_score = alpha_beta(self._board, max_depth=max_depth, maximizing=is_black)
+                move_score = alpha_beta_monte_carlo(self._board, max_depth=max_depth, maximizing=is_black, p=0.0001 * (max_depth - 1), nb_try=10)
                 self._board.pop()
 
                 if (move_score > best_score and is_black) or (move_score < best_score and not is_black):
