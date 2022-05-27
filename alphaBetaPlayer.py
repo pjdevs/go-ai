@@ -7,9 +7,7 @@ import sys
 from time import perf_counter
 import Goban
 from playerInterface import *
-from playerUtils import *
-from gamesUtils import ProGames
-
+from boardUtils import *
 
 class myPlayer(PlayerInterface):
     '''
@@ -41,11 +39,9 @@ class myPlayer(PlayerInterface):
         self._board.push(Goban.Board.name_to_flat(move))
         self._turn += 1
 
-    def newGame(self, color: Goban.Board):
+    def newGame(self, color: int):
         self._mycolor = color
         self._opponent = Goban.Board.flip(color)
-        # self._games = ProGames(self._board, color)
-        # self._games.load_random_winning_game()
 
     def endGame(self, winner: int):
         if self._mycolor == winner:

@@ -7,8 +7,7 @@ import sys
 from time import perf_counter
 import Goban
 from playerInterface import *
-from playerUtils import *
-from gamesUtils import ProGames
+from boardUtils import *
 
 
 class myPlayer(PlayerInterface):
@@ -23,7 +22,7 @@ class myPlayer(PlayerInterface):
         self._turn = 0
 
     def getPlayerName(self):
-        return "Alpha Beta"
+        return "Alpha-Beta with Monte-Carlo"
 
     def getPlayerMove(self):
         if self._board.is_game_over():
@@ -41,11 +40,11 @@ class myPlayer(PlayerInterface):
         self._board.push(Goban.Board.name_to_flat(move))
         self._turn += 1
 
-    def newGame(self, color: Goban.Board):
+    def newGame(self, color: int):
         self._mycolor = color
         self._opponent = Goban.Board.flip(color)
-        # self._games = ProGames(self._board, color)
-        # self._games.load_random_winning_game()
+
+        print(self.getPlayerName(), "is", self._board.player_name(color))
 
     def endGame(self, winner: int):
         if self._mycolor == winner:
@@ -80,7 +79,7 @@ class myPlayer(PlayerInterface):
                     self._board.pop()
                     continue
 
-                move_score = alpha_beta_monte_carlo(self._board, max_depth=max_depth, maximizing=is_black, p=0.0001 * (max_depth - 1), nb_try=10)
+                move_score = alpha_beta_monte_carlo(self._board, max_depth=max_depth, maximizing=is_black, p=0.0001 * (max_depth - 1), nb_try=100)
                 self._board.pop()
 
                 if (move_score > best_score and is_black) or (move_score < best_score and not is_black):
