@@ -79,7 +79,7 @@ class myPlayer(PlayerInterface):
                     self._board.pop()
                     continue
 
-                move_score = alpha_beta_monte_carlo(self._board, max_depth=max_depth, maximizing=is_black, p=0.0001 * (max_depth - 1), nb_try=100)
+                move_score = alpha_beta_monte_carlo(self._board, max_depth=max_depth, maximizing=is_black, p=0.0001 * max_depth * 0.5 * (self._turn / 10), nb_try=100)
                 self._board.pop()
 
                 if (move_score > best_score and is_black) or (move_score < best_score and not is_black):

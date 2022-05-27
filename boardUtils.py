@@ -21,8 +21,46 @@ def evaluate_board_score(b: Goban.Board) -> float:
 
     black, white, _ = b._count_areas()
     
-    score = b.diff_stones_board() - b.diff_stones_captured() + 10 * (black - white)
+    # Put stone on the board, capture stones and make eyes
+    score = 2* b.diff_stones_board() - b.diff_stones_captured() + 10 * (black - white)
 
+    # Put stones in the middle of the board
+    for x in range(3, 7):
+        for y in range(3, 7):
+            if b[b.flatten((x, y))] == b._WHITE:
+                score -= 2
+            else:
+                score += 2
+
+    # Put stones on the border of the board
+    for x in [0, 8]:
+        for y in [0, 8]:
+            if b[b.flatten((x, y))] == b._WHITE:
+                score -= 1
+            else:
+                score += 1
+
+    # Make eyes
+    for x in range(0, 9):
+        for y in range(0, 9):
+            total = 0
+            white = 0
+            black = 0
+
+            for xloc in range(x-1, x+2):
+                for yloc in range(y-1, y+2):
+                    if xloc >= 0 and yloc >= 0 and xloc < 9 and yloc < 9:
+                        if b[b.flatten((xloc, yloc))] == b._WHITE:
+                            white =+ 1
+                        else:
+                            black += 1
+                        total += 1
+            
+            if white == total:
+                score -= 100
+            elif black == total:
+                score += 100
+        
     return score
 
 
@@ -160,73 +198,6 @@ def alpha_beta_monte_carlo(b: Goban.Board, max_depth=0, alpha=-math.inf, beta=ma
 
             evaluation = alpha_beta_monte_carlo(b, max_depth, alpha, beta, True, depth + 1, p, nb_try)
             b.pop()
-
-            min_evaluation = min(min_evaluation, evaluation)
-            beta = min(beta, evaluation)
-
-            if alpha >= beta:
-                break
-
-        return min_evaluation
-
-
-def alpha_beta_monte_carlo_save(b: Goban.Board, all_moves: list, max_depth=0, alpha=-math.inf, beta=math.inf, maximizing=True, depth=0, p=0.2, nb_try=100) -> float:
-    """Alpha-Beta with Monte Carlo
-
-    Returns:
-        float: The score of the current board.
-    """
-
-    if depth >= max_depth or b.is_game_over():
-        r = random.Random().uniform(0.0, 1.0) 
-        if r <= p:
-            return monte_carlo(b, nb_try)
-        else:
-            return evaluate_board_score(b)
-
-    moves = None
-
-    if len(all_moves) < depth + 1:
-        moves = b.weak_legal_moves()
-        random.shuffle(moves)
-        all_moves.append([])
-    else:
-        moves = map(lambda m: m[0], all_moves[depth])
-
-    if maximizing:
-        max_evaluation = -math.inf
-
-        for move in moves:
-            valid = b.push(move)
-            if not valid:
-                b.pop()
-                continue
-
-            evaluation = alpha_beta_monte_carlo(b, max_depth, alpha, beta, False, depth + 1, p, nb_try)
-            b.pop()
-
-            bisect.insort_left(all_moves[depth], (move, evaluation), key=lambda m: -m[1])
-
-            max_evaluation = max(max_evaluation, evaluation)
-            alpha = max(alpha, evaluation)
-
-            if alpha >= beta:
-                break
-
-        return max_evaluation
-    else:
-        min_evaluation = math.inf
-
-        for move in moves:
-            valid = b.push(move)
-            if not valid:
-                b.pop()
-                continue
-
-            evaluation = alpha_beta_monte_carlo(b, max_depth, alpha, beta, True, depth + 1, p, nb_try)
-            b.pop()
-
-            bisect.insort_left(all_moves[depth], (move, evaluation), key=lambda m: m[1])
 
             min_evaluation = min(min_evaluation, evaluation)
             beta = min(beta, evaluation)
