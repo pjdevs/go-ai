@@ -59,25 +59,20 @@ class myPlayer(PlayerInterface):
         is_black = self._mycolor == Goban.Board._BLACK
         best_score = -math.inf if is_black else math.inf 
         best_move = None
-        legal_moves = self._board.weak_legal_moves()
-        max_depth = 1
+        legal_moves = self._board.legal_moves()
+        max_depth = 0
 
         random.shuffle(legal_moves)
 
         if len(legal_moves) < 30:
-            max_depth = 2
+            max_depth = 1
         if len(legal_moves) < 20:
-            max_depth = 3
+            max_depth = 2
         if len(legal_moves) < 5:
-            max_depth = 4
+            max_depth = 3
 
         for move in legal_moves:
-            valid = self._board.push(move)
-
-            if not valid:
-                self._board.pop()
-                continue
-
+            self._board.push(move)
             move_score = alpha_beta(self._board, max_depth=max_depth, maximizing=is_black)
             self._board.pop()
 

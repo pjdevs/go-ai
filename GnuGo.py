@@ -115,7 +115,7 @@ class GnuGo():
             return "ERR"
 
     def __init__(self, size):
-        self._proc = subprocess.Popen(['gnugo', '--capture-all-dead', '--chinese-rules', '--boardsize',str(size), '--mode', 'gtp', '--never-resign', '--seed', '0'], bufsize = 1, stdin=subprocess.PIPE,
+        self._proc = subprocess.Popen(['gnugo', '--capture-all-dead', '--chinese-rules', '--boardsize',str(size), '--mode', 'gtp', '--never-resign', '--seed', '12'], bufsize = 1, stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE, universal_newlines=True)
         self._stdin = self._proc.stdin
         self._stdout = self._proc.stdout

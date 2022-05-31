@@ -25,20 +25,20 @@ def evaluate_board_score(b: Goban.Board) -> float:
     score = 2* b.diff_stones_board() - b.diff_stones_captured() + 10 * (black - white)
 
     # Put stones in the middle of the board
-    for x in range(3, 7):
-        for y in range(3, 7):
+    for x in range(2, 7):
+        for y in range(2, 7):
             if b[b.flatten((x, y))] == b._WHITE:
-                score -= 2
+                score -= 100
             else:
-                score += 2
+                score += 100
 
     # Put stones on the border of the board
     for x in [0, 8]:
         for y in [0, 8]:
             if b[b.flatten((x, y))] == b._WHITE:
-                score -= 1
+                score -= 10
             else:
-                score += 1
+                score += 10
 
     # Make eyes
     for x in range(0, 9):
@@ -51,15 +51,15 @@ def evaluate_board_score(b: Goban.Board) -> float:
                 for yloc in range(y-1, y+2):
                     if xloc >= 0 and yloc >= 0 and xloc < 9 and yloc < 9:
                         if b[b.flatten((xloc, yloc))] == b._WHITE:
-                            white =+ 1
+                            white += 1
                         else:
                             black += 1
                         total += 1
             
             if white == total:
-                score -= 100
+                score -= 500
             elif black == total:
-                score += 100
+                score += 500
         
     return score
 
