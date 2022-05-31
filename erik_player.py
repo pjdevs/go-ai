@@ -100,7 +100,7 @@ class myPlayer(PlayerInterface):
 
 
         legal_moves = self._board.weak_legal_moves()
-        if( (81-len(legal_moves )<20) and (81-len(legal_moves))>2 ):
+        if( (81-len(legal_moves )<10) and (81-len(legal_moves))>2 ):
             legal_moves = self.neighbors
         
         
