@@ -26,7 +26,7 @@ def train():
     model.add(tf.keras.layers.Dense(32))
     model.add(tf.keras.layers.Dense(1))
     model.compile(optimizer="adam", loss="mse")
-    model.fit(X, Y, epochs=200)
+    model.fit(X, Y, epochs=500)
     model.save(PATH)
 
 def evaluate():
@@ -34,4 +34,4 @@ def evaluate():
     res = model.predict(X[0:1])
     print("result = ", res, "it is supposed to be ", Y[0:1])
 
-evaluate()
+train()
